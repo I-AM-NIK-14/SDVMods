@@ -1,6 +1,6 @@
 ﻿using StardewModdingAPI;
 
-namespace Autowatering
+namespace Autowatering.Configuration
 {
     /// <summary>
     /// Config file for Autowatering
@@ -30,5 +30,10 @@ namespace Autowatering
         ///     466: super speed gro
         /// </summary>
         public int? Fertilizer { get; set; } = null;
+
+        /// <summary>
+        /// Sets what days of the week to auto water, default every day
+        /// </summary>
+        public DaysToWater DaysToWater { get; set; } = new DaysToWater();
     }
 }

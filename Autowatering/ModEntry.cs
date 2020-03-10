@@ -1,4 +1,5 @@
-﻿using Netcode;
+﻿using Autowatering.Configuration;
+using Netcode;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -16,6 +17,7 @@ namespace Autowatering
         private readonly HashSet<HoeDirt> _hoeDirts = new HashSet<HoeDirt>();
         private readonly HashSet<IndoorPot> _indoorPots = new HashSet<IndoorPot>();
         private ModConfig _config;
+        private bool _shouldWaterToday = true;
 
         public override void Entry(IModHelper helper)
         {
@@ -38,6 +40,8 @@ namespace Autowatering
 
         private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
         {
+            _shouldWaterToday = ShouldAutoWaterToday();
+
             var builtLocations = Game1.locations.OfType<BuildableGameLocation>()
                 .SelectMany(location => location.buildings)
                 .Select(building => building.indoors.Value)
@@ -56,6 +60,11 @@ namespace Autowatering
 
         private void OnDayStarted(object sender, DayStartedEventArgs e)
         {
+            _shouldWaterToday = ShouldAutoWaterToday();
+
+            if (!_shouldWaterToday)
+                return;
+
             foreach (var hoeDirt in _hoeDirts)
                 Water(hoeDirt);
             foreach (var indoorPot in _indoorPots)
@@ -127,7 +136,7 @@ namespace Autowatering
 
         private void Water(HoeDirt hoeDirt, IndoorPot pot = null)
         {
-            if (!_config.Enabled)
+            if (!_config.Enabled || !_shouldWaterToday)
                 return;
 
             hoeDirt.state.Value = HoeDirt.watered;
@@ -135,6 +144,23 @@ namespace Autowatering
                 hoeDirt.fertilizer.Value = _config.Fertilizer.Value;
             if (pot != null)
                 pot.showNextIndex.Value = true;
+        }
+
+        private bool ShouldAutoWaterToday()
+        {
+            // Stardew dates range from 1->28
+            // The date mod 7 gives us the current day of the week
+            switch (Game1.dayOfMonth % 7)
+            {
+                case 0: return _config.DaysToWater.Sunday;
+                case 1: return _config.DaysToWater.Monday;
+                case 2: return _config.DaysToWater.Tuesday;
+                case 3: return _config.DaysToWater.Wednesday;
+                case 4: return _config.DaysToWater.Thursday;
+                case 5: return _config.DaysToWater.Friday;
+                case 6: return _config.DaysToWater.Saturday;
+                default: return true;
+            }
         }
     }
 }
