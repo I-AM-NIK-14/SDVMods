@@ -3,7 +3,6 @@ using Netcode;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
-using StardewValley.Locations;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
 using System;
@@ -42,7 +41,7 @@ namespace Autowatering
         {
             _shouldWaterToday = ShouldAutoWaterToday();
 
-            var builtLocations = Game1.locations.OfType<BuildableGameLocation>()
+            var builtLocations = Game1.locations.Where(l => l.IsBuildableLocation())
                 .SelectMany(location => location.buildings)
                 .Select(building => building.indoors.Value)
                 .Where(location => location != null);
@@ -141,7 +140,7 @@ namespace Autowatering
 
             hoeDirt.state.Value = HoeDirt.watered;
             if (_config.Fertilizer.HasValue)
-                hoeDirt.fertilizer.Value = _config.Fertilizer.Value;
+                hoeDirt.fertilizer.Value = _config.Fertilizer.Value.ToString();
             if (pot != null)
                 pot.showNextIndex.Value = true;
         }
