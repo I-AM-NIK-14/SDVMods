@@ -29,7 +29,7 @@ namespace Autowatering.Configuration
         ///     465: speed gro
         ///     466: super speed gro
         /// </summary>
-        public int? Fertilizer { get; set; } = null;
+        public int? Fertilizer { get; set; } = 919;
 
         /// <summary>
         /// Sets what days of the week to auto water, default every day
